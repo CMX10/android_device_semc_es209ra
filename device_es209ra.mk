@@ -145,7 +145,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.composition.type=mdp \
     debug.sf.hw=1 \
     persist.sys.usb.config=mass_storage \
-	ro.config.disable_hw_accel=true \
     BUILD_UTC_DATE=0
 
 

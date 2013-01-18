@@ -1,0 +1,13 @@
+diff --git a/packages/apps/Trebuchet/src/com/cyanogenmod/trebuchet/preference/PreferencesProvider.java b/packages/apps/Trebuchet/src/com/cyanogenmod/trebuchet/preference/PreferencesProvider.java
+index b4228c3..2ca5363 100644
+--- a/packages/apps/Trebuchet/src/com/cyanogenmod/trebuchet/preference/PreferencesProvider.java
++++ b/packages/apps/Trebuchet/src/com/cyanogenmod/trebuchet/preference/PreferencesProvider.java
+@@ -103,7 +103,7 @@ public final class PreferencesProvider {
+         public static class Drawer {
+             public static boolean getJoinWidgetsApps(Context context) {
+                 final SharedPreferences preferences = context.getSharedPreferences(PREFERENCES_KEY, 0);
+-                return preferences.getBoolean("ui_drawer_widgets_join_apps", true);
++                return preferences.getBoolean("ui_drawer_widgets_join_apps", false);
+             }
+             public static class Indicator {
+                 public static boolean getShowScrollingIndicator(Context context) {

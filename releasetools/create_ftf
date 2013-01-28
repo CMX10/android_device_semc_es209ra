@@ -1,0 +1,4 @@
+#!/bin/sh
+cd $1
+jar cvfm0 kernel.jar manifest.mf loader.sin kernel.sin
+mv kernel.jar kernel.ftf

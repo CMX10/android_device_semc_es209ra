@@ -11,19 +11,28 @@ echo mass_storage,adb > /sys/class/android_usb/android0/functions
 echo 1 > /sys/class/android_usb/android0/enable
 stop adbd
 
-# trigger amber LED
-echo '255' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
-echo '255' > /sys/class/leds/lv5219lg:rgb1:red/brightness
-echo '0' > /sys/class/leds/lv5219lg:rgb1:green/brightness
-# trigger button-backlight
-echo '255' > /sys/class/leds/lv5219lg:sled/brightness
+# trigger vibration
+echo '200' > /sys/class/timed_output/vibrator/enable
 cat /dev/input/event2 > /dev/keycheck&
-sleep 3
-# trigger amber LED
+# trigger blue LED
+echo '255' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
+# trigger vibration
+echo '200' > /sys/class/timed_output/vibrator/enable
+cat /dev/input/event2 > /dev/keycheck&
+sleep 0.5
+# trigger blue LED
 echo '0' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
-echo '0' > /sys/class/leds/lv5219lg:rgb1:red/brightness
-echo '0' > /sys/class/leds/lv5219lg:rgb1:green/brightness
-# trigger button-backlight
-echo '0' > /sys/class/leds/lv5219lg:sled/brightness
+sleep 0.5
+# trigger blue LED
+echo '255' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
+sleep 0.5
+# trigger blue LED
+echo '0' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
+sleep 0.5
+# trigger blue LED
+echo '255' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
+sleep 0.5
+# trigger blue LED
+echo '0' > /sys/class/leds/lv5219lg:rgb1:blue/brightness
 
 kill -9 $!

@@ -1,0 +1,50 @@
+#!/usr/bin/python
+"""
+This script will update manifest version and copy correct ar6000.ko to the ramdisk depending on the configuration used to build the ROM
+"""
+import sys
+import os.path
+import shutil
+
+if __name__ == "__main__":
+    import sys
+    assert(len(sys.argv) == 4)
+    kernel_config_file      = sys.argv[1]
+    product_out_directory   = sys.argv[2]
+    prebuild_folder         = sys.argv[3]
+
+    version = None
+    if os.path.exists(kernel_config_file):
+        #If it doesn't exists we'll be using prebuilt kernel
+        with open(kernel_config_file) as kernel:
+            for line in kernel.readlines():
+                if line.startswith("CONFIG_LOCALVERSION"):
+                    temp, version = line[:-1].split('-v')
+                    version.strip()
+                    if version.endswith('"'):
+                        #TODO replace with a proper reg exp instead of this ugly stuff
+                        version = version[:-1]
+                    break
+    with open(os.path.join(prebuild_folder, "manifest.mf")) as source_manifest:
+        with open(os.path.join(product_out_directory, "manifest.mf"), "w") as manifest:
+            for line in source_manifest.readlines():
+                if version is not None and line.startswith("version"):
+                    manifest.write("version:%s" % version)
+                    continue
+                manifest.write(line)
+
+
+
+    #Now check for the /system/lib/modules/ar6000.ko file, if it's not provided then use the prebuilt version
+
+    newly_built_wifi_driver = os.path.join(product_out_directory, "system/lib/modules/ar6000.ko")
+    destination_folder = os.path.join(product_out_directory, "root/modules/")
+    destination_file = os.path.join(destination_folder, "ar6000.ko")
+    if not os.path.exists(destination_folder):
+        os.mkdir(destination_folder)
+    if os.path.exists(newly_built_wifi_driver):
+        shutil.copy(newly_built_wifi_driver, destination_file)
+    else:
+        shutil.copy(os.path.join(prebuild_folder, "ar6000.ko"), destination_file)
+    
+

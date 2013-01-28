@@ -155,14 +155,12 @@ CameraHAL_CopyBuffers_Hw(int srcFd, int destFd,
     blit.req.src_rect.w = blit.req.dst_rect.w = w;
     blit.req.src_rect.h = blit.req.dst_rect.h = h;
 
-    ALOGD("%s before IOCTL", __FUNCTION__);
     if (ioctl(fb_fd, MSMFB_BLIT, &blit)) {
-       ALOGE("CameraHAL_CopyBuffers_Hw: MSMFB_BLIT failed = %d %s\n",
+       ALOGV("CameraHAL_CopyBuffers_Hw: MSMFB_BLIT failed = %d %s\n",
             errno, strerror(errno));
        success = false;
     }
     close(fb_fd);
-    ALOGD("%s S", __FUNCTION__);
     return success;
 }
 
@@ -252,11 +250,6 @@ CameraHAL_HandlePreviewData(const android::sp<android::IMemory>& dataPtr,
       ssize_t  offset;
       size_t   size;
       int32_t  previewFormat = MDP_Y_CBCR_H2V2;
-#ifdef HWA
-      int32_t  destFormat    = MDP_RGBX_8888;
-#else
-      int32_t  destFormat    = MDP_RGBA_8888;
-#endif
 
       //reset Dropped counter;
       droppedPreviewFrames = 0;
@@ -264,74 +257,41 @@ CameraHAL_HandlePreviewData(const android::sp<android::IMemory>& dataPtr,
       android::sp<android::IMemoryHeap> mHeap = dataPtr->getMemory(&offset,
                                                                    &size);
 
-      ALOGD("CameraHAL_HandlePreviewData: previewWidth:%d previewHeight:%d "
+      ALOGV("CameraHAL_HandlePreviewData: previewWidth:%d previewHeight:%d "
            "offset:%#x size:%#x base:%p\n", previewWidth, previewHeight,
            (unsigned)offset, size, mHeap != NULL ? mHeap->base() : 0);
 
       mWindow->set_usage(mWindow,
-#ifndef HWA
                          GRALLOC_USAGE_PMEM_PRIVATE_ADSP |
-#endif
                          GRALLOC_USAGE_SW_READ_OFTEN);
       retVal = mWindow->set_buffers_geometry(mWindow,
                                              previewWidth, previewHeight,
-#ifdef HWA
-                                             HAL_PIXEL_FORMAT_RGBX_8888
-#else
-                                             HAL_PIXEL_FORMAT_RGBA_8888
-#endif
-                                             );
+                                             HAL_PIXEL_FORMAT_YCrCb_420_SP);
       if (retVal == NO_ERROR) {
          int32_t          stride;
          buffer_handle_t *bufHandle = NULL;
 
-         ALOGD("CameraHAL_HandlePreviewData: dequeueing buffer\n");
+         ALOGV("CameraHAL_HandlePreviewData: dequeueing buffer\n");
          retVal = mWindow->dequeue_buffer(mWindow, &bufHandle, &stride);
          if (retVal == NO_ERROR) {
             retVal = mWindow->lock_buffer(mWindow, bufHandle);
             if (retVal == NO_ERROR) {
                private_handle_t const *privHandle =
                   reinterpret_cast<private_handle_t const *>(*bufHandle);
-               if (!CameraHAL_CopyBuffers_Hw(mHeap->getHeapID(), privHandle->fd,
+               CameraHAL_CopyBuffers_Hw(mHeap->getHeapID(), privHandle->fd,
                                              offset, privHandle->offset,
-                                             previewFormat, destFormat,
+                                             previewFormat, previewFormat,
                                              0, 0, previewWidth,
-                                             previewHeight) && (NULL != mWindow)) {
-                 //Multithreading and race condition...
-                  void *bits;
-                  android::Rect bounds;
-                  android::GraphicBufferMapper &mapper =
-                     android::GraphicBufferMapper::get();
+                                             previewHeight);
 
-                  bounds.left   = 0;
-                  bounds.top    = 0;
-                  bounds.right  = previewWidth;
-                  bounds.bottom = previewHeight;
-
-                  mapper.lock(*bufHandle, GRALLOC_USAGE_SW_READ_OFTEN, bounds,
-                              &bits);
-                  ALOGD("CameraHAL_HPD: w:%d h:%d bits:%p",
-                       previewWidth, previewHeight, bits);
-                  CameraHal_Decode_Sw((unsigned int *)bits, (char *)mHeap->base() + offset,
-                                      previewWidth, previewHeight);
-
-                  // unlock buffer before sending to display
-                  mapper.unlock(*bufHandle);
-               }
-               // Race condition AGAIN ....
-               ALOGD("%s Copy successful", __FUNCTION__ );
-               if (NULL != mWindow)
-                {
-                    ALOGD("%s putting buffer in queue", __FUNCTION__);
-                    mWindow->enqueue_buffer(mWindow, bufHandle);
-                }
-               ALOGD("CameraHAL_HandlePreviewData: enqueued buffer\n");
+               mWindow->enqueue_buffer(mWindow, bufHandle);
+               ALOGV("CameraHAL_HandlePreviewData: enqueued buffer\n");
             } else {
                ALOGE("CameraHAL_HandlePreviewData: ERROR locking the buffer\n");
                mWindow->cancel_buffer(mWindow, bufHandle);
             }
          } else {
-            ALOGD("CameraHAL_HandlePreviewData: ERROR dequeueing the buffer\n");
+            ALOGE("CameraHAL_HandlePreviewData: ERROR dequeueing the buffer\n");
          }
       }else{
          ALOGE("%s SET BUFFER FAILED", __FUNCTION__);
@@ -352,7 +312,7 @@ CameraHAL_GenClientData(const android::sp<android::IMemory> &dataPtr,
    camera_memory_t *clientData = NULL;
    android::sp<android::IMemoryHeap> mHeap = dataPtr->getMemory(&offset, &size);
 
-   ALOGD("CameraHAL_GenClientData: offset:%#x size:%#x base:%p\n",
+   ALOGV("CameraHAL_GenClientData: offset:%#x size:%#x base:%p\n",
         (unsigned)offset, size, mHeap != NULL ? mHeap->base() : 0);
 
    clientData = reqClientMemory(-1, size, 1, user);
@@ -360,22 +320,17 @@ CameraHAL_GenClientData(const android::sp<android::IMemory> &dataPtr,
       CameraHAL_CopyBuffers_Sw((char *)clientData->data,
                                (char *)(mHeap->base()) + offset, size);
    } else {
-      ALOGE("CameraHAL_GenClientData: ERROR allocating memory from client\n");
+      ALOGV("CameraHAL_GenClientData: ERROR allocating memory from client\n");
    }
    return clientData;
 }
-
-
 
 void
 CameraHAL_DataCb(int32_t msg_type, const android::sp<android::IMemory>& dataPtr,
                  void *user)
 {
-   //ALOGV("CameraHAL_DataCb: msg_type:%d user:%p\n", msg_type, user);
-   ALOGD("CameraHAL_DataCb: msg_type:%d user:%p\n", msg_type, user);
-
+   ALOGV("CameraHAL_DataCb: msg_type:%d user:%p\n", msg_type, user);
    if (msg_type == CAMERA_MSG_PREVIEW_FRAME) {
-      ALOGD("%s CAMERA_MSG_PREVIEW_FRAME received", __FUNCTION__);
       int32_t previewWidth, previewHeight;
       android::CameraParameters hwParameters = qCamera->getParameters();
       hwParameters.getPreviewSize(&previewWidth, &previewHeight);
@@ -387,10 +342,9 @@ CameraHAL_DataCb(int32_t msg_type, const android::sp<android::IMemory>& dataPtr,
       camera_memory_t *clientData = CameraHAL_GenClientData(dataPtr,
                                        origCamReqMemory, user);
       if (clientData != NULL) {
-         ALOGD("CameraHAL_DataCb: Posting data to client\n");
+         ALOGV("CameraHAL_DataCb: Posting data to client\n");
          origData_cb(msg_type, clientData, 0, NULL, user);
          clientData->release(clientData);
-        ALOGD("%s: Data released", __FUNCTION__);
       }
    }
 }
@@ -399,20 +353,20 @@ void
 CameraHAL_DataTSCb(nsecs_t timestamp, int32_t msg_type,
                    const android::sp<android::IMemory>& dataPtr, void *user)
 {
-   ALOGI("CameraHAL_DataTSCb: timestamp:%lld msg_type:%d user:%p\n",
-        timestamp, msg_type, user);
+   ALOGV("CameraHAL_DataTSCb: timestamp:%lld msg_type:%d user:%p\n",
+        timestamp /1000, msg_type, user);
 
    if (origDataTS_cb != NULL && origCamReqMemory != NULL) {
       camera_memory_t *clientData = CameraHAL_GenClientData(dataPtr,
                                        origCamReqMemory, user);
       if (clientData != NULL) {
-         ALOGI("CameraHAL_DataTSCb: Posting data to client timestamp:%lld\n",
+         ALOGV("CameraHAL_DataTSCb: Posting data to client timestamp:%lld\n",
               systemTime());
          origDataTS_cb(timestamp, msg_type, clientData, 0, user);
          qCamera->releaseRecordingFrame(dataPtr);
          clientData->release(clientData);
       } else {
-         ALOGE("CameraHAL_DataTSCb: ERROR allocating memory from client\n");
+         ALOGD("CameraHAL_DataTSCb: ERROR allocating memory from client\n");
       }
    }
 }
@@ -422,7 +376,7 @@ CameraHAL_GetNum_Cameras(void)
 {
    int numCameras = 1;
 
-   ALOGD("CameraHAL_GetNum_Cameras:\n");
+   ALOGE("CameraHAL_GetNum_Cameras:\n");
    void *libcameraHandle = ::dlopen("libcamerafromsemc.so", RTLD_NOW);
    ALOGD("CameraHAL_GetNum_Cameras: loading libcamera at %p", libcameraHandle);
    if (!libcameraHandle) {
@@ -443,7 +397,7 @@ int
 CameraHAL_GetCam_Info(int camera_id, struct camera_info *info)
 {
    bool dynamic = false;
-   ALOGD("CameraHAL_GetCam_Info:\n");
+   ALOGE("CameraHAL_GetCam_Info:\n");
    void *libcameraHandle = ::dlopen("libcamerafromsemc.so", RTLD_NOW);
    ALOGD("CameraHAL_GetNum_Cameras: loading libcamera at %p", libcameraHandle);
    if (!libcameraHandle) {
@@ -486,13 +440,6 @@ CameraHAL_FixupParams(android::CameraParameters &settings)
       settings.set(android::CameraParameters::KEY_SUPPORTED_PREVIEW_SIZES,
                    preview_sizes);
    }
-
-#if 0
-   if (!settings.get(android::CameraParameters::KEY_SUPPORTED_VIDEO_SIZES)) {
-      settings.set(android::CameraParameters::KEY_SUPPORTED_VIDEO_SIZES,
-                   video_sizes);
-   }
-#endif
 
    if (!settings.get(android::CameraParameters::KEY_VIDEO_SIZE)) {
       settings.set(android::CameraParameters::KEY_VIDEO_SIZE, preferred_size);
@@ -581,23 +528,17 @@ qcamera_set_callbacks(struct camera_device * device,
         notify_cb, data_cb, data_cb_timestamp, get_memory, user);
 
    origNotify_cb    = notify_cb;
-   ALOGD("AFTER notify");
    origData_cb      = data_cb;
-   ALOGD("AFTER data");
    origDataTS_cb    = data_cb_timestamp;
-   ALOGD("AFTER Timestamp");
    origCamReqMemory = get_memory;
-   ALOGD("BEFORE ACCESSING TO qCamera");
-   ALOGD("qcamera_set_callbacks done initializing: qcamera =%p", &(*qCamera));
    qCamera->setCallbacks(CameraHAL_NotifyCb, CameraHAL_DataCb,
                          CameraHAL_DataTSCb, user);
-   //qCamera->setCallbacks(origNotify_cb, origData_cb, origDataTS_cb, user);
 }
 
 void
 qcamera_enable_msg_type(struct camera_device * device, int32_t msg_type)
 {
-   ALOGD("qcamera_enable_msg_type: msg_type:%#x\n", msg_type);
+   ALOGV("qcamera_enable_msg_type: msg_type:%#x\n", msg_type);
    if (msg_type == 0xfff) {
       msg_type = 0x1ff;
    } else {
@@ -609,7 +550,7 @@ qcamera_enable_msg_type(struct camera_device * device, int32_t msg_type)
 void
 qcamera_disable_msg_type(struct camera_device * device, int32_t msg_type)
 {
-   ALOGD("qcamera_disable_msg_type: msg_type:%#x\n", msg_type);
+   ALOGV("qcamera_disable_msg_type: msg_type:%#x\n", msg_type);
    if (msg_type == 0xfff) {
       msg_type = 0x1ff;
    }
@@ -621,7 +562,7 @@ qcamera_disable_msg_type(struct camera_device * device, int32_t msg_type)
 int
 qcamera_msg_type_enabled(struct camera_device * device, int32_t msg_type)
 {
-   ALOGD("qcamera_msg_type_enabled: msg_type:%d\n", msg_type);
+   ALOGV("qcamera_msg_type_enabled: msg_type:%d\n", msg_type);
    return qCamera->msgTypeEnabled(msg_type);
 }
 
@@ -640,13 +581,7 @@ qcamera_start_preview(struct camera_device * device)
    if (!qCamera->msgTypeEnabled(CAMERA_MSG_PREVIEW_FRAME)) {
       qCamera->enableMsgType(CAMERA_MSG_PREVIEW_FRAME);
    }
-   //if(NULL != mWindow)
-   //{
-        int result = qCamera->startPreview();
-        inPreview = true;
-        return result;
-   //}
-   return NO_ERROR;
+   return qCamera->startPreview();
 }
 
 void
@@ -720,9 +655,8 @@ qcamera_release_recording_frame(struct camera_device * device,
 int
 qcamera_auto_focus(struct camera_device * device)
 {
-   ALOGD("qcamera_auto_focus:\n");
+   ALOGV("qcamera_auto_focus:\n");
    qCamera->autoFocus();
-   ALOGD("%s END", __FUNCTION__);
    return NO_ERROR;
 }
 
@@ -760,10 +694,11 @@ qcamera_cancel_picture(struct camera_device * device)
 int
 qcamera_set_parameters(struct camera_device * device, const char *params)
 {
-   ALOGI("qcamera_set_parameters: %s\n", params);
+   ALOGV("qcamera_set_parameters: %s\n", params);
    g_str = android::String8(params);
    camSettings.unflatten(g_str);
-   return qCamera->setParameters(camSettings);
+   qCamera->setParameters(camSettings);
+   return NO_ERROR;
 }
 
 char*

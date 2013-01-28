@@ -22,13 +22,9 @@
 /dev/msm_vidc_enc       0660 system audio
 /dev/msm_vidc_reg       0660 system audio
 /dev/bma250             0640 compass system
-/dev/oncrpc/30000000*	0660 radio radio
-/dev/oncrpc/30000003*	0660 radio radio
-/dev/oncrpc/3000000e*	0660 radio system
-/dev/oncrpc/30000012*	0660 radio radio
-/dev/oncrpc/30000016*	0660 radio radio
-/dev/oncrpc/30000017*	0660 radio radio
-/dev/oncrpc/30000019*	0660 radio radio
-/dev/oncrpc/3000003c*	0660 radio radio
-/dev/oncrpc/3000006b*	0660 radio system
+/dev/oncrpc/*	        0660 radio system
+/dev/smdcntl0               0640   radio    radio
+/dev/smdcntl1               0640   radio    radio
+/dev/smdcntl2               0640   radio    radio
+
 

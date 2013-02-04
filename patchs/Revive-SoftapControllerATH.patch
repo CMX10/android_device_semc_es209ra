@@ -867,3 +867,16 @@ diff -urN ./system/netd/SoftapControllerATH.cpp ./system/netd/SoftapControllerAT
 +    // XXX: unimplemented
 +    return -1;
 +}
+diff --git a/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java b/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
+index ce1ad1d..8b61443 100644
+--- a/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
++++ b/frameworks/base/wifi/java/android/net/wifi/WifiStateMachine.java
+@@ -111,7 +111,7 @@ public class WifiStateMachine extends StateMachine {
+     private static final boolean DBG = false;
+ 
+     /* TODO: This is no more used with the hostapd code. Clean up */
+-    private static final String SOFTAP_IFACE = "wl0.1";
++    private static final String SOFTAP_IFACE = "athap0";
+ 
+     private WifiMonitor mWifiMonitor;
+     private WifiNative mWifiNative;

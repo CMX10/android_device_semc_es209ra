@@ -485,7 +485,7 @@ diff -urN ./system/netd/SoftapControllerATH.cpp ./system/netd/SoftapControllerAT
 +
 +#ifdef WIFI_MODULE_PATH
 +    rmmod("ar6000");
-+	ret = insmod(WIFI_MODULE_PATH, "ifname=athap0 wowenable=1");
++	ret = insmod(WIFI_MODULE_PATH, "ifname=athap0");
 +	sleep(1);
 +#else
 +	set_wifi_power(0);

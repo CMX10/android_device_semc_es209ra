@@ -2,11 +2,5 @@
   {
     "repository": "android_hardware_sony_DASH",
     "target_path": "hardware/somc/dash"
- },
- {
-   "repository": "semc-kernel-qsd8k-ics",
-   "target_path": "kernel/semc/qsd8k",
-   "branch": "jellybean",
-   "account": "CMX10"
-  }
+ }
 ]

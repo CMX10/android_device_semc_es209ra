@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 device: es209ra
-branding: 4.1.2
+branding: 4.2.1
 Created-By: CMX10
 version: 17

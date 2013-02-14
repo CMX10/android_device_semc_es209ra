@@ -38,6 +38,9 @@
 #define ALOGI(...) ((void)0)
 #define ALOGD(...) ((void)0)
 #endif
+
+#undef ALOGV
+#define ALOGV ALOGD
 #include "SemcCameraHardware.h"
 
 #include <utils/Errors.h>
@@ -524,6 +527,7 @@ exifinfo_iso_t iso_record_value[] = {
 
 static bool parameter_string_initialized = false;
 static String8 preview_size_values;
+static String8 video_size_values;
 static String8 picture_size_values;
 static String8 antibanding_values;
 static String8 effect_values;
@@ -929,6 +933,9 @@ void SemcCameraHardware::initDefaultParameters()
         preview_size_values = create_sizes_str(
             supportedPreviewSizes, previewSizeCount);
 
+		video_size_values = create_sizes_str(
+			video_sizes, sizeof(video_sizes));
+
         picture_size_values = create_sizes_str(
                 picture_sizes, PICTURE_SIZE_COUNT_SEMC);
 
@@ -993,7 +1000,7 @@ void SemcCameraHardware::initDefaultParameters()
                     preview_size_values.string());
     //Set Video Keys
     mParameters.set(CameraParameters::KEY_SUPPORTED_VIDEO_SIZES,
-                    preview_size_values.string());
+                    video_size_values.string());
 
     mParameters.set(CameraParameters::KEY_SUPPORTED_PICTURE_SIZES,
                     picture_size_values.string());
@@ -1037,10 +1044,8 @@ void SemcCameraHardware::initDefaultParameters()
     mParameters.setFloat(CameraParameters::KEY_VERTICAL_VIEW_ANGLE,
                     CAMERA_VERTICAL_VIEW_ANGLE_DEFAULT);
 
-    int maxZoom;
-    native_get_maxzoom(mCameraControlFd, &maxZoom);
 
-    ALOGD("%s FOUND mAX ZOOM %d", __FUNCTION__, maxZoom);
+    //ALOGD("%s FOUND mAX ZOOM %d", __FUNCTION__, maxZoom);
 
     mUseOverlay = useOverlay();
 

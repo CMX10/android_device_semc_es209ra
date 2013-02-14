@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define ALOG_TAG "CameraHAL"
+#define LOG_TAG "CameraHAL"
 
 #include <CameraHardwareInterface.h>
 #include <hardware/hardware.h>
@@ -610,7 +610,7 @@ int
 qcamera_store_meta_data_in_buffers(struct camera_device * device, int enable)
 {
    ALOGD("qcamera_store_meta_data_in_buffers:\n");
-   return NO_ERROR;
+   return android::INVALID_OPERATION;
 }
 
 int

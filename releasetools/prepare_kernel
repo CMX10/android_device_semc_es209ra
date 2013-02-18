@@ -29,7 +29,7 @@ if __name__ == "__main__":
         with open(os.path.join(product_out_directory, "manifest.mf"), "w") as manifest:
             for line in source_manifest.readlines():
                 if version is not None and line.startswith("version"):
-                    manifest.write("version: %s" % version)
+                    manifest.write("version: %s\n" % version)
                     continue
                 manifest.write(line)
 

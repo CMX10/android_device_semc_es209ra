@@ -1,6 +1,6 @@
-diff -urN ./system/netd/Android.mk ./system/netd/Android.mk
---- ./system/netd/Android.mk	2013-01-05 14:32:04.000000000 +0100
-+++ ./system/netd/Android.mk	2013-01-31 21:36:48.000000000 +0100
+diff --git a/system/netd/Android.mk b/system/netd/Android.mk
+--- a/system/netd/Android.mk	2013-01-05 14:32:04.000000000 +0100
++++ b/system/netd/Android.mk	2013-01-31 21:36:48.000000000 +0100
 @@ -43,6 +43,13 @@
  
  ifdef USES_TI_MAC80211
@@ -15,9 +15,9 @@ diff -urN ./system/netd/Android.mk ./system/netd/Android.mk
  else
    LOCAL_SRC_FILES += SoftapController.cpp
  endif
-diff -urN ./system/netd/SoftapControllerATH.cpp ./system/netd/SoftapControllerATH.cpp
---- ./system/netd/SoftapControllerATH.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ ./system/netd/SoftapControllerATH.cpp	2013-01-31 21:45:39.000000000 +0100
+diff --git a/system/netd/SoftapControllerATH.cpp b/system/netd/SoftapControllerATH.cpp
+--- a/system/netd/SoftapControllerATH.cpp	1970-01-01 01:00:00.000000000 +0100
++++ b/system/netd/SoftapControllerATH.cpp	2013-01-31 21:45:39.000000000 +0100
 @@ -0,0 +1,848 @@
 +/*
 + * Copyright (C) 2008 The Android Open Source Project
@@ -880,3 +880,44 @@ index ce1ad1d..8b61443 100644
  
      private WifiMonitor mWifiMonitor;
      private WifiNative mWifiNative;
+diff --git a/system/core/libsysutils/src/NetlinkEvent.cpp b/system/core/libsysutils/src/NetlinkEvent.cpp
+index 4beebb7..8add005 100644
+--- a/system/core/libsysutils/src/NetlinkEvent.cpp
++++ b/system/core/libsysutils/src/NetlinkEvent.cpp
+@@ -100,10 +100,16 @@ bool NetlinkEvent::parseBinaryNetlinkMessage(char *buffer, int size) {
+                 switch(rta->rta_type) {
+                 case IFLA_IFNAME:
+                     char buffer[16 + IFNAMSIZ];
++                    int flag = IFF_LOWER_UP;
+                     snprintf(buffer, sizeof(buffer), "INTERFACE=%s",
+                              (char *) RTA_DATA(rta));
+                     mParams[0] = strdup(buffer);
+-                    mAction = (ifi->ifi_flags & IFF_LOWER_UP) ?
++                    SLOGE("Working on interface %s\n", (char*)RTA_DATA(rta));
++                    if (strcmp((char*)RTA_DATA(rta), "athap0"))
++                    {
++                        flag = IFF_UP;
++                    }
++                    mAction = (ifi->ifi_flags & flag) ?
+                       NlActionLinkUp : NlActionLinkDown;
+                     mSubsystem = strdup("net");
+                     break;
+diff --git a/system/netd/CommandListener.cpp b/system/netd/CommandListener.cpp
+index 386c95d..fce1139 100644
+--- a/system/netd/CommandListener.cpp
++++ b/system/netd/CommandListener.cpp
+@@ -375,6 +375,14 @@ int CommandListener::InterfaceCmd::runCommand(SocketClient *cli,
+                         ifc_close();
+                         return 0;
+                     }
++                    //Dirty hack for the x10
++                    if (0 == strcmp(argv[2], "athap0"))
++                    {
++                        //Give some time before changing the state
++                        sleep(3);
++                        ifc_down(argv[2]);
++                        ifc_up(argv[2]);
++                    }
+                 } else if (!strcmp(flag, "down")) {
+                     ALOGD("Trying to bring down %s", argv[2]);
+                     if (ifc_down(argv[2])) {

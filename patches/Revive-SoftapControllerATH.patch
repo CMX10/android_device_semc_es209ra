@@ -18,7 +18,7 @@ diff --git a/system/netd/Android.mk b/system/netd/Android.mk
 diff --git a/system/netd/SoftapControllerATH.cpp b/system/netd/SoftapControllerATH.cpp
 --- a/system/netd/SoftapControllerATH.cpp	1970-01-01 01:00:00.000000000 +0100
 +++ b/system/netd/SoftapControllerATH.cpp	2013-01-31 21:45:39.000000000 +0100
-@@ -0,0 +1,848 @@
+@@ -0,0 +1,862 @@
 +/*
 + * Copyright (C) 2008 The Android Open Source Project
 + *
@@ -793,6 +793,20 @@ diff --git a/system/netd/SoftapControllerATH.cpp b/system/netd/SoftapControllerA
 +            len = snprintf(buf, sizeof(buf), "wpa_key_mgmt=WPA-PSK\n");
 +            write(fd, buf, len);
 +            len = snprintf(buf, sizeof(buf), "wpa_pairwise=CCMP\n");
++            write(fd, buf, len);
++            if (argc > 6) {
++                len = snprintf(buf, sizeof(buf), "wpa_passphrase=%s\n",argv[6]);
++                write(fd, buf, len);
++            } else {
++                len = snprintf(buf, sizeof(buf), "wpa_passphrase=12345678\n");
++                write(fd, buf, len);
++            }
++        }else if (strncmp(argv[5], "wpa-psk", 8) == 0) {
++            len = snprintf(buf, sizeof(buf), "wpa=1\n");
++            write(fd, buf, len);
++            len = snprintf(buf, sizeof(buf), "wpa_key_mgmt=WPA-PSK\n");
++            write(fd, buf, len);
++            len = snprintf(buf, sizeof(buf), "wpa_pairwise=TKIP\n");
 +            write(fd, buf, len);
 +            if (argc > 6) {
 +                len = snprintf(buf, sizeof(buf), "wpa_passphrase=%s\n",argv[6]);

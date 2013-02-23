@@ -4,6 +4,12 @@
 echo 998400 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo 245000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
+echo 0 > /sys/class/android_usb/android0/enable
+echo 0FCE > /sys/class/android_usb/android0/idVendor
+echo 614F > /sys/class/android_usb/android0/idProduct
+echo mass_storage,adb > /sys/class/android_usb/android0/functions
+echo 1 > /sys/class/android_usb/android0/enable
+
 # trigger vibration
 echo '200' > /sys/class/timed_output/vibrator/enable
 cat /dev/input/event2 > /dev/keycheck&

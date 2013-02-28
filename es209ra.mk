@@ -155,8 +155,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.disable_vsync=true \
     debug.composition.type=mdp \
     debug.sf.hw=1 \
-    persist.sys.usb.config=mass_storage \
-    ro.config.disable_hw_accel=true
+    persist.sys.usb.config=mass_storage,adb \
+    sys.usb.config=mass_storage,adb 
 
 
 PRODUCT_PROPERTY_OVERRIDES += \

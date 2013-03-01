@@ -156,6 +156,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.composition.type=mdp \
     debug.sf.hw=1 \
     persist.sys.usb.config=mass_storage,adb \
+    persist.service.adb.enable=1 \
     sys.usb.config=mass_storage,adb 
 
 

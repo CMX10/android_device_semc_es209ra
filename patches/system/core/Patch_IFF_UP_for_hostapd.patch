@@ -1,0 +1,22 @@
+diff --git a/libsysutils/src/NetlinkEvent.cpp b/libsysutils/src/NetlinkEvent.cpp
+index 4beebb7..8add005 100644
+--- a/libsysutils/src/NetlinkEvent.cpp
++++ b/libsysutils/src/NetlinkEvent.cpp
+@@ -100,10 +100,16 @@ bool NetlinkEvent::parseBinaryNetlinkMessage(char *buffer, int size) {
+                 switch(rta->rta_type) {
+                 case IFLA_IFNAME:
+                     char buffer[16 + IFNAMSIZ];
++                    int flag = IFF_LOWER_UP;
+                     snprintf(buffer, sizeof(buffer), "INTERFACE=%s",
+                              (char *) RTA_DATA(rta));
+                     mParams[0] = strdup(buffer);
+-                    mAction = (ifi->ifi_flags & IFF_LOWER_UP) ?
++                    SLOGE("Working on interface %s\n", (char*)RTA_DATA(rta));
++                    if (strcmp((char*)RTA_DATA(rta), "athap0"))
++                    {
++                        flag = IFF_UP;
++                    }
++                    mAction = (ifi->ifi_flags & flag) ?
+                       NlActionLinkUp : NlActionLinkDown;
+                     mSubsystem = strdup("net");
+                     break;

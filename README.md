@@ -12,6 +12,7 @@ Initialize repo:
     repo sync
 
 edit .repo/local_manifests/local_manifest.xml file and add
+
 	<?xml version="1.0" encoding="UTF-8"?>
 	<manifest>
 		<!-- Remove CM repository -->

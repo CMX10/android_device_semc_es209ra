@@ -9,10 +9,9 @@ How to build:
 Initialize repo:
 
     repo init -u git://github.com/CyanogenMod/android.git -b cm-10.1
-    curl -L -o .repo/local_manifests/local_manifest.xml -O -L https://raw.github.com/legaCyMod/android_local_manifest/cm-10.1/local_manifest.xml
     repo sync
 
-edit local_manifest and add
+edit .repo/local_manifests/local_manifest.xml file and add
 	<?xml version="1.0" encoding="UTF-8"?>
 	<manifest>
 		<!-- Remove CM repository -->

@@ -1,8 +1,8 @@
 diff --git a/config/common.mk b/config/common.mk
-index 4a79c93..9ef16a0 100644
+index 24ecb2b..60b5b65 100644
 --- a/config/common.mk
 +++ b/config/common.mk
-@@ -139,7 +139,6 @@ PRODUCT_PACKAGES += \
+@@ -140,7 +140,6 @@ PRODUCT_PACKAGES += \
  
  # Optional CM packages
  PRODUCT_PACKAGES += \
@@ -10,7 +10,7 @@ index 4a79c93..9ef16a0 100644
      VoiceDialer \
      SoundRecorder \
      Basic
-@@ -152,7 +151,6 @@ PRODUCT_PACKAGES += \
+@@ -153,7 +152,6 @@ PRODUCT_PACKAGES += \
      audio_effects.conf \
      CMWallpapers \
      Apollo \

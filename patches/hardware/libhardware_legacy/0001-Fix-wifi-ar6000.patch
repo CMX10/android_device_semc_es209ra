@@ -1,8 +1,18 @@
+From a96920561da0f8f901b4b940e7b5429c9d55cf2c Mon Sep 17 00:00:00 2001
+From: Legrand Benjamin <dev@legrand.ws>
+Date: Wed, 13 Mar 2013 23:10:01 +0100
+Subject: [PATCH] Fix wifi ar6000
+
+Change-Id: Ib78298e2bfef5c1e323a2d540f22234a94e364a9
+---
+ wifi/wifi.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
 diff --git a/wifi/wifi.c b/wifi/wifi.c
-index b51dab0..22b5827 100644
+index f9179df..f18fa20 100644
 --- a/wifi/wifi.c
 +++ b/wifi/wifi.c
-@@ -858,6 +858,16 @@ int wifi_start_supplicant(int p2p_supported)
+@@ -879,6 +879,16 @@ int wifi_start_supplicant(int p2p_supported)
          serial = pi->serial;
      }
  #endif
@@ -19,3 +29,6 @@ index b51dab0..22b5827 100644
      property_get("wifi.interface", primary_iface, WIFI_TEST_INTERFACE);
  
      property_set("ctl.start", supplicant_name);
+-- 
+1.7.10.4
+

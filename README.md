@@ -21,14 +21,10 @@ edit .repo/local_manifests/local_manifest.xml file and add
 	    <project path="hardware/qcom/display-legacy" name="Evervolv/android_hardware_qcom_display-legacy" revision="jellybean" />
 		<project path="hardware/qcom/gps-legacy" name="Evervolv/android_hardware_qcom_gps-legacy" revision="jellybean" />
 	
-	    <!-- Device -->
-	    <remote name="bitbucket"
-	            fetch="ssh://git@bitbucket.org" />
-	
 	    <project path="hardware/atheros/wifi/libs" name="CMX10/android_hardware_atheros_wifi_libs" revision="cm-10.1" />
-	    <project name="CMX10/android_device_semc_es209ra" path="device/semc/es209ra" remote="bitbucket" revision="cm10.1" />
+	    <project name="CMX10/android_device_semc_es209ra" path="device/semc/es209ra" revision="cm10.1" />
 	    <project name="CMX10/proprietary_es209ra" path="vendor/semc/es209ra" revision="jellybean" />
-	    <project name="CMX10/android_kernel_semc_es209ra" path="kernel/semc/es209ra" revision="master" remote="bitbucket"/>
+	    <project name="CMX10/android_kernel_semc_es209ra" path="kernel/semc/es209ra" revision="master" />
 	</manifest>
 	
 Compile:
